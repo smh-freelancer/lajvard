@@ -112,9 +112,8 @@ class _LocationSearchScreenState extends ConsumerState<LocationSearchScreen> {
             child: SizedBox(
               width: double.infinity,
               child: OutlinedButton.icon(
-                onPressed: deviceLocationAsync.isLoading
-                    ? null
-                    : _onUseMyLocation,
+                onPressed:
+                    deviceLocationAsync.isLoading ? null : _onUseMyLocation,
                 icon: deviceLocationAsync.isLoading
                     ? const SizedBox(
                         width: 20,

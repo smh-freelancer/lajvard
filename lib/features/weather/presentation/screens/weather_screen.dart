@@ -176,12 +176,14 @@ class WeatherScreen extends ConsumerWidget {
               textAlign: TextAlign.center,
             ),
             const SizedBox(height: 8),
-            Text(subMessage,
-                style: Theme.of(context)
-                    .textTheme
-                    .bodyMedium
-                    ?.copyWith(color: Colors.white.withValues(alpha: 0.6)),
-                textAlign: TextAlign.center),
+            Text(
+              subMessage,
+              style: Theme.of(context)
+                  .textTheme
+                  .bodyMedium
+                  ?.copyWith(color: Colors.white.withValues(alpha: 0.6)),
+              textAlign: TextAlign.center,
+            ),
             const SizedBox(height: 24),
             ElevatedButton(
               onPressed: () => ref.read(weatherProvider.notifier).refresh(),

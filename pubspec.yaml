@@ -55,6 +55,8 @@ dependencies:
   # [DEV] — Required to show immediate "offline" UI without waiting for API timeouts.
   connectivity_plus: ^7.2.0
 
+  shamsi_date: ^1.1.1
+
 dev_dependencies:
   flutter_test:
     sdk: flutter
