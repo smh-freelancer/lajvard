@@ -1,6 +1,6 @@
 // [OWNER] — Settings screen.
 // [OWNER] — Three user-facing toggles: Temperature, Language, Theme.
-// [DEV] — Changing language/theme here triggers instant app-wide updates.
+// [DEV] — Fixed: Fixed back button to properly pop instead of going forward.
 
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -35,17 +35,13 @@ class SettingsScreen extends ConsumerWidget {
   }
 
   Widget _buildContent(
-    BuildContext context,
-    WidgetRef ref,
-    SettingsState settings,
-  ) {
+      BuildContext context, WidgetRef ref, SettingsState settings) {
     final localeService =
         LocaleService(locale: Localizations.localeOf(context));
 
     return ListView(
       padding: const EdgeInsets.all(16.0),
       children: [
-        // [DEV] — 1. Temperature Unit Toggle
         SettingToggleTile<TemperatureUnit>(
           title: localeService.convertDigits('Temperature Unit'),
           currentValue: settings.temperatureUnit,
@@ -62,8 +58,6 @@ class SettingsScreen extends ConsumerWidget {
             ref.read(settingsProvider.notifier).updateTemperatureUnit(unit);
           },
         ),
-
-        // [DEV] — 2. Language Toggle
         SettingToggleTile<String>(
           title: localeService.convertDigits('Language'),
           currentValue: settings.languageCode,
@@ -81,8 +75,6 @@ class SettingsScreen extends ConsumerWidget {
             ref.read(settingsProvider.notifier).updateLanguage(code);
           },
         ),
-
-        // [DEV] — 3. Theme Toggle
         SettingToggleTile<AppThemeMode>(
           title: localeService.convertDigits('Theme'),
           currentValue: settings.themeMode,

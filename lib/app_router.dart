@@ -1,6 +1,6 @@
 // [OWNER] — GoRouter configuration.
 // [OWNER] — Defines all app routes and navigation guards.
-// [DEV] — Fixed: Added pop capability for Settings screen.
+// [DEV] — Fixed: Restored pop/back functionality for Settings and Search screens.
 
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';

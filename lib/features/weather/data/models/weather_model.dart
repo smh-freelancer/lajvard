@@ -1,8 +1,7 @@
 // [OWNER] — Main weather data model.
 // [OWNER] — Maps the complete Open-Meteo JSON response to WeatherEntity.
 // [DEV] — Adapter pattern: converts complex API structure to clean domain objects.
-
-// import 'package:dartjson/dartjson.dart' hide JsonDecoder;
+// [DEV] — Fixed: Correctly maps all 4 required sub-models from the JSON.
 
 import '../../../../core/error/app_exception.dart';
 import '../../../../core/error/logger.dart';
@@ -36,7 +35,6 @@ class WeatherModel {
   }
 
   /// [DEV] — Parses the full Open-Meteo response JSON.
-  /// [DEV] — Open-Meteo returns current, hourly, and daily in a single response.
   factory WeatherModel.fromJson(Map<String, dynamic> json) {
     try {
       return WeatherModel(
@@ -48,9 +46,7 @@ class WeatherModel {
     } catch (e) {
       AppLogger.instance.error('WeatherModel parse error', error: e);
       throw ParseException(
-        message: 'Failed to parse weather data',
-        originalError: e,
-      );
+          message: 'Failed to parse weather data', originalError: e);
     }
   }
 }

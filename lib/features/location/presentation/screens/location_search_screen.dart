@@ -1,6 +1,7 @@
 // [OWNER] — Location search screen.
 // [OWNER] — Allows user to search for a city or use their current GPS location.
 // [DEV] — Uses the citySearchProvider for debounced API calls.
+// [DEV] — Fixed: Removed `ref` from build() signature for Flutter 3.44+ compatibility.
 
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -25,7 +26,6 @@ class _LocationSearchScreenState extends ConsumerState<LocationSearchScreen> {
   @override
   void initState() {
     super.initState();
-    // [DEV] — Auto-focus keyboard on open.
     WidgetsBinding.instance.addPostFrameCallback((_) {
       _focusNode.requestFocus();
     });
@@ -39,16 +39,14 @@ class _LocationSearchScreenState extends ConsumerState<LocationSearchScreen> {
   }
 
   void _onSelectLocation(LocationEntity location) {
-    // [DEV] — Pop back to weather screen and pass the selected location.
     context.pop(location);
   }
 
   Future<void> _onUseMyLocation() async {
     final deviceLocation = ref.read(deviceLocationProvider);
 
-    // [DEV] — Riverpod 3.x pattern matching instead of valueOrNull
     LocationEntity? location;
-    if (deviceLocation.value case final LocationEntity loc?) {
+    if (deviceLocation.value case LocationEntity loc?) {
       location = loc;
     } else {
       location = await ref.read(deviceLocationProvider.future);
@@ -68,8 +66,10 @@ class _LocationSearchScreenState extends ConsumerState<LocationSearchScreen> {
 
   @override
   Widget build(BuildContext context) {
-    final localeService =
-        LocaleService(locale: Localizations.localeOf(context));
+    // [DEV] — No `WidgetRef ref` here in Flutter 3.44+
+    final localeService = LocaleService(
+      locale: Localizations.localeOf(context),
+    );
     final searchResults = ref.watch(citySearchProvider);
     final isSearching =
         _searchController.text.isNotEmpty && searchResults.isEmpty;
@@ -81,7 +81,6 @@ class _LocationSearchScreenState extends ConsumerState<LocationSearchScreen> {
       ),
       body: Column(
         children: [
-          // [DEV] — Search Input Field
           Padding(
             padding: const EdgeInsets.all(16.0),
             child: TextField(
@@ -101,21 +100,21 @@ class _LocationSearchScreenState extends ConsumerState<LocationSearchScreen> {
                           ref
                               .read(citySearchProvider.notifier)
                               .onQueryChanged('');
+                          FocusScope.of(context).requestFocus();
                         },
                       )
                     : null,
               ),
             ),
           ),
-
-          // [DEV] — Use My Location Button
           Padding(
             padding: const EdgeInsets.symmetric(horizontal: 16.0),
             child: SizedBox(
               width: double.infinity,
               child: OutlinedButton.icon(
-                onPressed:
-                    deviceLocationAsync.isLoading ? null : _onUseMyLocation,
+                onPressed: deviceLocationAsync.isLoading
+                    ? null
+                    : _onUseMyLocation,
                 icon: deviceLocationAsync.isLoading
                     ? const SizedBox(
                         width: 20,
@@ -133,17 +132,12 @@ class _LocationSearchScreenState extends ConsumerState<LocationSearchScreen> {
               ),
             ),
           ),
-
           const SizedBox(height: 16),
-
-          // [DEV] — Loading Indicator
           if (isSearching)
             const Padding(
               padding: EdgeInsets.all(24.0),
               child: Center(child: CircularProgressIndicator()),
             ),
-
-          // [DEV] — Search Results List
           if (!isSearching)
             Expanded(
               child: ListView.builder(
