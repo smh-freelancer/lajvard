@@ -1,6 +1,6 @@
 // [OWNER] — Main weather screen.
 // [OWNER] — Shows all weather data in the exact order specified in Rule 13.
-// [DEV] — Updated with animations, floating action button, and working refresh.
+// [DEV] — Updated with city search button and working refresh.
 
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -30,14 +30,9 @@ class WeatherScreen extends ConsumerWidget {
     );
 
     return Container(
-      decoration: const BoxDecoration(gradient: gradient),
+      decoration: BoxDecoration(gradient: gradient),
       child: Scaffold(
         backgroundColor: Colors.transparent,
-        floatingActionButton: FloatingActionButton(
-          onPressed: () => context.go('/settings'),
-          backgroundColor: Colors.white.withValues(alpha: 0.15),
-          child: const Icon(Icons.settings, color: Colors.white70),
-        ),
         body: SafeArea(
           child: weatherAsync.when(
             data: (_) => _buildContent(context, ref),
@@ -54,22 +49,57 @@ class WeatherScreen extends ConsumerWidget {
       color: const Color(0xFFD4A843),
       backgroundColor: const Color(0xFF162D50),
       onRefresh: () => ref.read(weatherProvider.notifier).refresh(),
-      child: const CustomScrollView(
+      child: CustomScrollView(
         slivers: [
+          // [DEV] — Search City Button
           SliverToBoxAdapter(
             child: Padding(
-              padding: EdgeInsets.only(top: 32.0, bottom: 16.0),
+              padding:
+                  const EdgeInsets.symmetric(horizontal: 16.0, vertical: 8.0),
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  GestureDetector(
+                    onTap: () => context.go('/location-search'),
+                    child: Row(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        const Icon(
+                          Icons.manage_search,
+                          color: Colors.white70,
+                          size: 20,
+                        ),
+                        const SizedBox(width: 8),
+                        Text(
+                          'Search City',
+                          style: TextStyle(
+                              color: Colors.white.withValues(alpha: 0.8),
+                              fontSize: 14),
+                        ),
+                      ],
+                    ),
+                  ),
+                  GestureDetector(
+                    onTap: () => context.go('/settings'),
+                    child: const Icon(Icons.settings,
+                        color: Colors.white70, size: 24),
+                  ),
+                ],
+              ),
+            ),
+          ),
+          const SliverToBoxAdapter(
+            child: Padding(
+              padding: EdgeInsets.only(top: 16.0, bottom: 16.0),
               child: CurrentWeatherHeader(),
             ),
           ),
-          SliverToBoxAdapter(child: HourlyForecastList()),
-          SliverToBoxAdapter(child: SizedBox(height: 16)),
-          SliverToBoxAdapter(child: DailyForecastList()),
-          SliverToBoxAdapter(child: SizedBox(height: 24)),
-          SliverToBoxAdapter(child: WeatherDetailsGrid()),
-          SliverToBoxAdapter(
-            child: SizedBox(height: 80),
-          ), // [DEV] — Space for FAB
+          const SliverToBoxAdapter(child: HourlyForecastList()),
+          const SliverToBoxAdapter(child: SizedBox(height: 16)),
+          const SliverToBoxAdapter(child: DailyForecastList()),
+          const SliverToBoxAdapter(child: SizedBox(height: 24)),
+          const SliverToBoxAdapter(child: WeatherDetailsGrid()),
+          const SliverToBoxAdapter(child: SizedBox(height: 32)),
         ],
       ),
     );
@@ -134,11 +164,8 @@ class WeatherScreen extends ConsumerWidget {
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            Icon(
-              Icons.cloud_off,
-              size: 64,
-              color: Colors.white.withValues(alpha: 0.5),
-            ),
+            Icon(Icons.cloud_off,
+                size: 64, color: Colors.white.withValues(alpha: 0.5)),
             const SizedBox(height: 16),
             Text(
               message,
@@ -149,14 +176,12 @@ class WeatherScreen extends ConsumerWidget {
               textAlign: TextAlign.center,
             ),
             const SizedBox(height: 8),
-            Text(
-              subMessage,
-              style: Theme.of(context)
-                  .textTheme
-                  .bodyMedium
-                  ?.copyWith(color: Colors.white.withValues(alpha: 0.6)),
-              textAlign: TextAlign.center,
-            ),
+            Text(subMessage,
+                style: Theme.of(context)
+                    .textTheme
+                    .bodyMedium
+                    ?.copyWith(color: Colors.white.withValues(alpha: 0.6)),
+                textAlign: TextAlign.center),
             const SizedBox(height: 24),
             ElevatedButton(
               onPressed: () => ref.read(weatherProvider.notifier).refresh(),
@@ -166,8 +191,7 @@ class WeatherScreen extends ConsumerWidget {
                 padding:
                     const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
                 shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(16),
-                ),
+                    borderRadius: BorderRadius.circular(16)),
               ),
               child: const Text('Retry'),
             ),

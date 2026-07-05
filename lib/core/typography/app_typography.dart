@@ -11,7 +11,8 @@ class LajvardTypography {
   // [OWNER] — update pubspec.yaml, and change this string to your font family name.
   final String fontFamily;
 
-  const LajvardTypography({this.fontFamily = 'Roboto'});
+  // const LajvardTypography({this.fontFamily = 'Roboto'});
+  const LajvardTypography({this.fontFamily = 'IRANSansMobile'});
 
   /// [DEV] — Generates a complete Flutter TextTheme from this configuration.
   TextTheme toTextTheme({Color? color}) {

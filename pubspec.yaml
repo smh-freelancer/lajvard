@@ -81,7 +81,7 @@ flutter:
 
   # [OWNER] — Custom fonts will be added in later steps.
   fonts:
-    - family: LajvardSans
+    - family: IRANSansMobile
       fonts:
         - asset: assets/fonts/IRANSansMobile(FaNum)_Light.ttf
         - asset: assets/fonts/IRANSansMobile(FaNum)_Medium.ttf
