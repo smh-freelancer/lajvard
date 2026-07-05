@@ -1,0 +1,56 @@
+# [OWNER] — This tells Git which files to ignore (not track).
+# [DEV] — Based on Flutter's official template with additions for code gen.
+
+# Flutter/Dart
+.dart_tool/
+.flutter-plugins
+.flutter-plugins-dependencies
+.packages
+.build/
+build/
+*.iml
+*.dart_tool/
+
+# Code generation
+*.g.dart
+*.freezed.dart
+*.config.dart
+
+# IDE
+.idea/
+.vscode/
+*.swp
+*.swo
+*~
+
+# OS
+.DS_Store
+.DS_Store?
+Thumbs.db
+ehthumbs.db
+Desktop.ini
+
+# Coverage
+coverage/
+test/.test_coverage.dart
+
+# Environment / secrets
+.env
+.env.*
+*.env
+dart_defines.json
+
+# Build outputs
+*/build/
+*.apk
+*.aab
+*.ipa
+*.dSYM.zip
+*.app
+
+# Logs
+*.log
+
+# Temporary
+tmp/
+temp/

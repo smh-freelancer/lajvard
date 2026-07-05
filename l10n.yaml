@@ -1,0 +1,15 @@
+# [OWNER] — This configures Flutter's automatic localization code generation.
+# [OWNER] — Running "flutter run" or "flutter build" with generate:true
+# [OWNER] — in pubspec.yaml will automatically create the localizations delegate.
+# [DEV] — Using built-in l10n instead of external packages reduces dependencies.
+
+arb-dir: lib/core/localization/l10n
+template-arb-file: app_en.arb
+output-localization-file: app_localizations.dart
+output-class: AppLocalizations
+output-dir: lib/core/localization/generated
+# [DEV] — Using a custom output-dir inside our core module keeps the
+# [DEV] — generated file tracked in version control and easily accessible.
+preferred-supported-locales: ["en", "fa"]
+nullable-getter: false
+untranslated-messages-file: untranslated.txt

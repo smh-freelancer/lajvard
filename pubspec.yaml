@@ -1,0 +1,96 @@
+# [OWNER] — This is the main configuration file for the Flutter project.
+# [OWNER] — It defines all dependencies, assets, fonts, and build settings.
+# [DEV] — Keep this file clean; group dependencies by category for readability.
+# [DEV] — All packages are latest stable as of mid-2025. Verify before first run.
+
+name: lajvard
+description: A premium multi-platform weather app inspired by Lapis Lazuli deep blue gemstone.
+publish_to: "none" # [OWNER] — Private project, not published to pub.dev
+version: 1.0.0+1
+
+environment:
+  sdk: ">=3.0.0 <4.0.0" # Assuming Dart 3 compatibility for Flutter 3.44.x
+  flutter: ">=3.44.0"
+
+dependencies:
+  flutter:
+    sdk: flutter
+
+  # [DEV] — Localization: Required for GlobalMaterialLocalizations, RTL support,
+  # [DEV] — and programmatic locale switching (Rule 6).
+  flutter_localizations:
+    sdk: flutter
+
+  # [DEV] — State management: Riverpod is the most scalable, testable, and
+  # [DEV] — performant choice for Flutter. Used with code generation.
+  flutter_riverpod: ^3.3.2
+  riverpod_annotation: ^4.0.3
+
+  # [DEV] — Routing: GoRouter is the official Flutter team recommendation,
+  # [DEV] — supports deep links, declarative routing, and redirect guards.
+  go_router: ^17.3.0
+
+  # [DEV] — Networking: Dio chosen over http for interceptors, timeout
+  # [DEV] — configuration, retry logic, and cancellation support.
+  dio: ^5.10.0
+
+  # [DEV] — Local persistence: SharedPrefs is the lightest option for
+  # [DEV] — storing simple key-value settings (theme, locale, temp unit).
+  shared_preferences: ^2.5.5
+
+  # [DEV] — Device location: Geolocator is the most reliable cross-platform
+  # [DEV] — location plugin with permission handling built in.
+  geolocator: ^14.0.3
+
+  # [DEV] — Internationalization: intl is the standard Flutter package for
+  # [DEV] — date/number formatting and message lookup (used by generated l10n).
+  intl: ^0.20.2
+
+  # [DEV] — Loading placeholder: Shimmer provides a polished skeleton
+  # [DEV] — loading effect. No built-in Flutter alternative exists that
+  # [DEV] — matches its quality with so little code.
+  shimmer: ^3.0.0
+
+  # [DEV] — Connectivity: Official Flutter team plugin to detect network state changes.
+  # [DEV] — Required to show immediate "offline" UI without waiting for API timeouts.
+  connectivity_plus: ^7.2.0
+
+dev_dependencies:
+  flutter_test:
+    sdk: flutter
+
+  # [DEV] — Code generation for Riverpod providers (build_runner).
+  riverpod_generator: ^4.0.4
+
+  # [DEV] — Required code generation tooling.
+  build_runner: ^2.15.0
+
+  # [DEV] — Linting rules for cleaner, more consistent code.
+  flutter_lints: ^6.0.0
+
+flutter:
+  uses-material-design: true
+  # [DEV] — Official Flutter SDK flag to auto-generate l10n files from ARB.
+  # [DEV] — Replaces the third-party flutter_intl extension setting.
+  generate: true
+
+  # [OWNER] — Asset directories. Files will be added in later steps.
+  assets:
+    - assets/logo/
+    - assets/icons/
+
+  # [OWNER] — Custom fonts will be added in later steps.
+  fonts:
+    - family: LajvardSans
+      fonts:
+        - asset: assets/fonts/IRANSansMobile(FaNum)_Light.ttf
+        - asset: assets/fonts/IRANSansMobile(FaNum)_Medium.ttf
+          weight: 500
+        - asset: assets/fonts/IRANSansMobile(FaNum)_Bold.ttf
+          weight: 700
+
+flutter_intl:
+  enabled: true
+  # [DEV] — ARB files are the standard Flutter localization format.
+  # [DEV] — No external l10n package needed — Flutter's built-in
+  # [DEV] — generate_localizations handles everything.
