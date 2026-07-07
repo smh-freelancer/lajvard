@@ -80,6 +80,7 @@ flutter:
   assets:
     - assets/logo/
     - assets/icons/
+    - assets/fonts/
 
   # [OWNER] — Custom fonts will be added in later steps.
   fonts:
@@ -91,8 +92,8 @@ flutter:
         - asset: assets/fonts/IRANSansMobile(FaNum)_Bold.ttf
           weight: 700
 
-flutter_intl:
-  enabled: true
-  # [DEV] — ARB files are the standard Flutter localization format.
-  # [DEV] — No external l10n package needed — Flutter's built-in
-  # [DEV] — generate_localizations handles everything.
+# flutter_intl:
+#   enabled: true
+#   # [DEV] — ARB files are the standard Flutter localization format.
+#   # [DEV] — No external l10n package needed — Flutter's built-in
+#   # [DEV] — generate_localizations handles everything.

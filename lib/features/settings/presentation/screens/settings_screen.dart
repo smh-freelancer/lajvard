@@ -1,6 +1,6 @@
 // [OWNER] — Settings screen.
 // [OWNER] — Three user-facing toggles: Temperature, Language, Theme.
-// [DEV] — Fixed: Fixed back button to properly pop instead of going forward.
+// [DEV] — Fixed: Back button now correctly pops instead of pushing a new route.
 
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';

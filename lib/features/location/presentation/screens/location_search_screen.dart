@@ -1,11 +1,9 @@
 // [OWNER] — Location search screen.
 // [OWNER] — Allows user to search for a city or use their current GPS location.
-// [DEV] — Uses the citySearchProvider for debounced API calls.
-// [DEV] — Fixed: Removed `ref` from build() signature for Flutter 3.44+ compatibility.
+// [DEV] — Fixed: Used standard Navigator.pop for 100% reliable back navigation.
 
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:go_router/go_router.dart';
 import '../../../../core/localization/locale_service.dart';
 import '../../domain/entities/location_entity.dart';
 import '../providers/location_provider.dart';
@@ -39,7 +37,8 @@ class _LocationSearchScreenState extends ConsumerState<LocationSearchScreen> {
   }
 
   void _onSelectLocation(LocationEntity location) {
-    context.pop(location);
+    // [DEV] — Standard Navigator.pop is the most reliable way to pass data back.
+    Navigator.of(context).pop(location);
   }
 
   Future<void> _onUseMyLocation() async {
@@ -53,7 +52,7 @@ class _LocationSearchScreenState extends ConsumerState<LocationSearchScreen> {
     }
 
     if (location != null && mounted) {
-      context.pop(location);
+      Navigator.of(context).pop(location);
     } else if (mounted) {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
@@ -66,10 +65,8 @@ class _LocationSearchScreenState extends ConsumerState<LocationSearchScreen> {
 
   @override
   Widget build(BuildContext context) {
-    // [DEV] — No `WidgetRef ref` here in Flutter 3.44+
-    final localeService = LocaleService(
-      locale: Localizations.localeOf(context),
-    );
+    final localeService =
+        LocaleService(locale: Localizations.localeOf(context));
     final searchResults = ref.watch(citySearchProvider);
     final isSearching =
         _searchController.text.isNotEmpty && searchResults.isEmpty;
