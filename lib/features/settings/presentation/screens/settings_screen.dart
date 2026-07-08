@@ -4,6 +4,7 @@
 
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:go_router/go_router.dart';
 import '../../../../core/localization/locale_service.dart';
 import '../../domain/entities/temperature_unit.dart';
 import '../../domain/entities/theme_mode_enum.dart';
@@ -22,6 +23,16 @@ class SettingsScreen extends ConsumerWidget {
 
     return Scaffold(
       appBar: AppBar(
+        leading: IconButton(
+          icon: const Icon(Icons.arrow_back),
+          onPressed: () {
+            if (context.canPop()) {
+              context.pop();
+            } else {
+              context.go('/'); // fallback to home
+            }
+          },
+        ),
         title: Text(localeService.convertDigits('Settings')),
       ),
       body: settingsAsync.when(

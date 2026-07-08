@@ -2,6 +2,8 @@
 // [OWNER] — Connects the data source to the domain layer.
 // [DEV] — Adapter pattern: catches AppExceptions and maps them to Failures.
 
+import 'package:flutter/widgets.dart';
+
 import '../../../../core/error/app_exception.dart';
 import '../../../../core/error/failure.dart';
 import '../../../../core/network/network_response.dart';
@@ -31,6 +33,9 @@ class WeatherRepositoryImpl implements WeatherRepository {
       );
 
       if (response is ApiResponseSuccess<WeatherModel>) {
+        debugPrint(
+          'response ---> ${response.data}',
+        );
         return Result.success(response.data.toEntity());
       } else if (response is ApiResponseFailure<WeatherModel>) {
         return Result.failure(_mapFailure(response));

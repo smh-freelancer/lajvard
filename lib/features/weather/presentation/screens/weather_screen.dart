@@ -7,6 +7,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
 import '../../../../core/shimmer/shimmer_module.dart';
+import '../../../location/domain/entities/location_entity.dart';
 import '../providers/weather_provider.dart';
 import '../widgets/current_weather_header.dart';
 import '../widgets/daily_forecast_list.dart';
@@ -30,7 +31,7 @@ class WeatherScreen extends ConsumerWidget {
     );
 
     return Container(
-      decoration: BoxDecoration(gradient: gradient),
+      decoration: const BoxDecoration(gradient: gradient),
       child: Scaffold(
         backgroundColor: Colors.transparent,
         body: SafeArea(
@@ -60,7 +61,20 @@ class WeatherScreen extends ConsumerWidget {
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
                   GestureDetector(
-                    onTap: () => context.go('/location-search'),
+                    //onTap: () => context.push('/location-search'),
+                    onTap: () async {
+                      final picked = await context
+                          .push<LocationEntity>('/location-search');
+                      if (picked != null && context.mounted) {
+                        await ref.read(weatherProvider.notifier).updateLocation(
+                              picked.latitude,
+                              picked.longitude,
+                              picked.name,
+                            );
+                        await ref.read(weatherProvider.notifier).refresh();
+                      }
+                    },
+
                     child: Row(
                       mainAxisSize: MainAxisSize.min,
                       children: [
@@ -73,16 +87,20 @@ class WeatherScreen extends ConsumerWidget {
                         Text(
                           'Search City',
                           style: TextStyle(
-                              color: Colors.white.withValues(alpha: 0.8),
-                              fontSize: 14),
+                            color: Colors.white.withValues(alpha: 0.8),
+                            fontSize: 14,
+                          ),
                         ),
                       ],
                     ),
                   ),
                   GestureDetector(
-                    onTap: () => context.go('/settings'),
-                    child: const Icon(Icons.settings,
-                        color: Colors.white70, size: 24),
+                    onTap: () => context.push('/settings'),
+                    child: const Icon(
+                      Icons.settings,
+                      color: Colors.white70,
+                      size: 24,
+                    ),
                   ),
                 ],
               ),
@@ -164,8 +182,11 @@ class WeatherScreen extends ConsumerWidget {
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            Icon(Icons.cloud_off,
-                size: 64, color: Colors.white.withValues(alpha: 0.5)),
+            Icon(
+              Icons.cloud_off,
+              size: 64,
+              color: Colors.white.withValues(alpha: 0.5),
+            ),
             const SizedBox(height: 16),
             Text(
               message,
@@ -193,7 +214,8 @@ class WeatherScreen extends ConsumerWidget {
                 padding:
                     const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
                 shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(16)),
+                  borderRadius: BorderRadius.circular(16),
+                ),
               ),
               child: const Text('Retry'),
             ),

@@ -1,9 +1,11 @@
 // [OWNER] — Location search screen.
 // [OWNER] — Allows user to search for a city or use their current GPS location.
-// [DEV] — Fixed: Used standard Navigator.pop for 100% reliable back navigation.
+// [DEV] — Uses AsyncValue search state so loading, empty, and error are distinct.
 
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:go_router/go_router.dart';
+
 import '../../../../core/localization/locale_service.dart';
 import '../../domain/entities/location_entity.dart';
 import '../providers/location_provider.dart';
@@ -20,6 +22,7 @@ class LocationSearchScreen extends ConsumerStatefulWidget {
 class _LocationSearchScreenState extends ConsumerState<LocationSearchScreen> {
   final TextEditingController _searchController = TextEditingController();
   final FocusNode _focusNode = FocusNode();
+  bool _isResolvingLocation = false;
 
   @override
   void initState() {
@@ -37,43 +40,62 @@ class _LocationSearchScreenState extends ConsumerState<LocationSearchScreen> {
   }
 
   void _onSelectLocation(LocationEntity location) {
-    // [DEV] — Standard Navigator.pop is the most reliable way to pass data back.
     Navigator.of(context).pop(location);
   }
 
   Future<void> _onUseMyLocation() async {
-    final deviceLocation = ref.read(deviceLocationProvider);
-
-    LocationEntity? location;
-    if (deviceLocation.value case LocationEntity loc?) {
-      location = loc;
-    } else {
-      location = await ref.read(deviceLocationProvider.future);
-    }
-
-    if (location != null && mounted) {
+    if (_isResolvingLocation) return;
+    setState(() => _isResolvingLocation = true);
+    try {
+      final location = await ref.refresh(deviceLocationProvider.future);
+      if (!mounted) return;
       Navigator.of(context).pop(location);
-    } else if (mounted) {
+    } catch (error) {
+      if (!mounted) return;
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
-          content: const Text('Could not get location.'),
+          content: Text(error.toString().replaceFirst('Exception: ', '')),
           backgroundColor: Theme.of(context).colorScheme.error,
         ),
       );
+    } finally {
+      if (mounted) {
+        setState(() => _isResolvingLocation = false);
+      }
     }
+  }
+
+  void _onQueryChanged(String query) {
+    setState(() {});
+    ref.read(citySearchProvider.notifier).onQueryChanged(query);
+  }
+
+  void _clearQuery() {
+    _searchController.clear();
+    setState(() {});
+    ref.read(citySearchProvider.notifier).onQueryChanged('');
+    _focusNode.requestFocus();
   }
 
   @override
   Widget build(BuildContext context) {
     final localeService =
         LocaleService(locale: Localizations.localeOf(context));
-    final searchResults = ref.watch(citySearchProvider);
-    final isSearching =
-        _searchController.text.isNotEmpty && searchResults.isEmpty;
-    final deviceLocationAsync = ref.watch(deviceLocationProvider);
+    final searchAsync = ref.watch(citySearchProvider);
+    final hasQuery = _searchController.text.trim().isNotEmpty;
 
     return Scaffold(
       appBar: AppBar(
+        leading: IconButton(
+          icon: const Icon(Icons.arrow_back),
+          onPressed: () {
+            if (context.canPop()) {
+              context.pop();
+            } else {
+              context.go('/');
+            }
+          },
+        ),
         title: Text(localeService.convertDigits('Search Location')),
       ),
       body: Column(
@@ -83,22 +105,14 @@ class _LocationSearchScreenState extends ConsumerState<LocationSearchScreen> {
             child: TextField(
               controller: _searchController,
               focusNode: _focusNode,
-              onChanged: (query) {
-                ref.read(citySearchProvider.notifier).onQueryChanged(query);
-              },
+              onChanged: _onQueryChanged,
               decoration: InputDecoration(
                 hintText: localeService.convertDigits('Search city name...'),
                 prefixIcon: const Icon(Icons.search),
-                suffixIcon: _searchController.text.isNotEmpty
+                suffixIcon: hasQuery
                     ? IconButton(
                         icon: const Icon(Icons.close),
-                        onPressed: () {
-                          _searchController.clear();
-                          ref
-                              .read(citySearchProvider.notifier)
-                              .onQueryChanged('');
-                          FocusScope.of(context).requestFocus();
-                        },
+                        onPressed: _clearQuery,
                       )
                     : null,
               ),
@@ -109,9 +123,8 @@ class _LocationSearchScreenState extends ConsumerState<LocationSearchScreen> {
             child: SizedBox(
               width: double.infinity,
               child: OutlinedButton.icon(
-                onPressed:
-                    deviceLocationAsync.isLoading ? null : _onUseMyLocation,
-                icon: deviceLocationAsync.isLoading
+                onPressed: _isResolvingLocation ? null : _onUseMyLocation,
+                icon: _isResolvingLocation
                     ? const SizedBox(
                         width: 20,
                         height: 20,
@@ -129,23 +142,57 @@ class _LocationSearchScreenState extends ConsumerState<LocationSearchScreen> {
             ),
           ),
           const SizedBox(height: 16),
-          if (isSearching)
-            const Padding(
-              padding: EdgeInsets.all(24.0),
-              child: Center(child: CircularProgressIndicator()),
-            ),
-          if (!isSearching)
-            Expanded(
-              child: ListView.builder(
-                itemCount: searchResults.length,
-                itemBuilder: (context, index) {
-                  return LocationSearchItem(
-                    location: searchResults[index],
-                    onTap: () => _onSelectLocation(searchResults[index]),
-                  );
-                },
+          Expanded(
+            child: searchAsync.when(
+              loading: () => const Center(child: CircularProgressIndicator()),
+              error: (error, _) => Center(
+                child: Padding(
+                  padding: const EdgeInsets.all(24.0),
+                  child: Text(
+                    localeService.convertDigits('Search failed: $error'),
+                    textAlign: TextAlign.center,
+                  ),
+                ),
               ),
+              data: (results) {
+                if (!hasQuery) {
+                  return Center(
+                    child: Padding(
+                      padding: const EdgeInsets.all(24.0),
+                      child: Text(
+                        localeService.convertDigits(
+                            'Search for a city or use your current location.'),
+                        textAlign: TextAlign.center,
+                      ),
+                    ),
+                  );
+                }
+
+                if (results.isEmpty) {
+                  return Center(
+                    child: Padding(
+                      padding: const EdgeInsets.all(24.0),
+                      child: Text(
+                        localeService.convertDigits('No cities found.'),
+                        textAlign: TextAlign.center,
+                      ),
+                    ),
+                  );
+                }
+
+                return ListView.builder(
+                  itemCount: results.length,
+                  itemBuilder: (context, index) {
+                    final location = results[index];
+                    return LocationSearchItem(
+                      location: location,
+                      onTap: () => _onSelectLocation(location),
+                    );
+                  },
+                );
+              },
             ),
+          ),
         ],
       ),
     );

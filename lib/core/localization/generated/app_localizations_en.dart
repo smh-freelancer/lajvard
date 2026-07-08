@@ -334,4 +334,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get northWest => 'NW';
+
+  @override
+  String get details => 'Details';
 }

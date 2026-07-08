@@ -80,6 +80,10 @@ class WeatherNotifier extends AsyncNotifier<WeatherEntity> {
     final location = ref.watch(weatherLocationProvider);
     final useCase = ref.read(getFullWeatherUseCaseProvider);
 
+    debugPrint(
+      'location.cityName ---> ${location.cityName}',
+    );
+
     final result = await useCase.call(
       latitude: location.latitude,
       longitude: location.longitude,

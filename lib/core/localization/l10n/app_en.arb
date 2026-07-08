@@ -113,5 +113,7 @@
   "south": "S",
   "southWest": "SW",
   "west": "W",
-  "northWest": "NW"
+  "northWest": "NW",
+    "details": "Details"
+
 }

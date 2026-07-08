@@ -19,50 +19,94 @@ final searchCityUseCaseProvider = Provider<SearchCityUseCase>((ref) {
 });
 
 /// [DEV] — Notifier for handling city search with debouncing.
-class CitySearchNotifier extends Notifier<List<LocationEntity>> {
+// class CitySearchNotifier extends Notifier<List<LocationEntity>> {
+class CitySearchNotifier extends AsyncNotifier<List<LocationEntity>> {
   Timer? _debounce;
+  int _requestId = 0; // prevents stale results overriding latest query
 
   @override
-  List<LocationEntity> build() {
-    // [DEV] — Clean up timer when provider is disposed.
+  FutureOr<List<LocationEntity>> build() {
     ref.onDispose(() => _debounce?.cancel());
-    return [];
+    return const [];
   }
 
-  /// [DEV] — Updates the search query. Waits 500ms of inactivity before searching.
+  // @override
+  // List<LocationEntity> build() {
+  //   // [DEV] — Clean up timer when provider is disposed.
+  //   ref.onDispose(() => _debounce?.cancel());
+  //   return [];
+  // }
   void onQueryChanged(String query) {
     _debounce?.cancel();
 
-    if (query.trim().isEmpty) {
-      state = [];
+    final trimmed = query.trim();
+    if (trimmed.isEmpty) {
+      state = const AsyncData([]);
       return;
     }
 
-    _debounce = Timer(const Duration(milliseconds: 500), () async {
-      state = const []; // [DEV] — Show loading state implicitly
+    final currentId = ++_requestId;
+
+    // Optional: small delay for debouncing keystrokes
+    _debounce = Timer(const Duration(milliseconds: 400), () async {
+      state = const AsyncLoading();
+
       final useCase = ref.read(searchCityUseCaseProvider);
-      final result = await useCase.call(query);
+      final result = await useCase.call(trimmed);
+
+      // Ignore stale responses from older queries
+      if (currentId != _requestId) return;
 
       result.when(
-        success: (locations) => state = locations,
-        failure: (_) => state = [],
+        success: (locations) => state = AsyncData(locations),
+        failure: (failure) => state = AsyncError(
+          Exception(failure.displayMessage),
+          StackTrace.current,
+        ),
       );
     });
   }
 }
 
 final citySearchProvider =
-    NotifierProvider<CitySearchNotifier, List<LocationEntity>>(
+    AsyncNotifierProvider<CitySearchNotifier, List<LocationEntity>>(
   CitySearchNotifier.new,
 );
+//   /// [DEV] — Updates the search query. Waits 500ms of inactivity before searching.
+//   void onQueryChanged(String query) {
+//     _debounce?.cancel();
 
-/// [DEV] — Async provider to get current device location once.
-final deviceLocationProvider = FutureProvider<LocationEntity?>((ref) async {
+//     if (query.trim().isEmpty) {
+//       state = [];
+//       return;
+//     }
+
+//     _debounce = Timer(const Duration(milliseconds: 500), () async {
+//       state = const []; // [DEV] — Show loading state implicitly
+//       final useCase = ref.read(searchCityUseCaseProvider);
+//       final result = await useCase.call(query);
+
+//       result.when(
+//         success: (locations) => state = locations,
+//         failure: (_) => state = [],
+//       );
+//     });
+//   }
+// }
+
+// final citySearchProvider =
+//     NotifierProvider<CitySearchNotifier, List<LocationEntity>>(
+//   CitySearchNotifier.new,
+// );
+
+/// [DEV] — Async provider to get current device location.
+/// [DEV] — Throws a meaningful exception on failure so UI can display details.
+final deviceLocationProvider = FutureProvider<LocationEntity>((ref) async {
   final useCase = ref.read(getCurrentPositionUseCaseProvider);
   final result = await useCase.call();
 
   return result.when(
     success: (location) => location,
-    failure: (_) => null,
+    failure: (failure) => throw Exception(failure.displayMessage),
   );
 });

@@ -334,4 +334,7 @@ class AppLocalizationsFa extends AppLocalizations {
 
   @override
   String get northWest => 'ش‌غ';
+
+  @override
+  String get details => 'جزئیات';
 }

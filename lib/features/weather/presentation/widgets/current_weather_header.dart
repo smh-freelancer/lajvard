@@ -9,6 +9,7 @@ import 'package:go_router/go_router.dart';
 import '../../../../core/animation/fade_in_animation.dart';
 import '../../../../core/localization/digit_converter.dart';
 import '../../../../core/localization/locale_service.dart';
+import '../../../location/domain/entities/location_entity.dart';
 import '../providers/weather_provider.dart';
 import '../providers/weather_providers.dart';
 import 'weather_condition_icon.dart';
@@ -27,6 +28,9 @@ class CurrentWeatherHeader extends ConsumerWidget {
         DigitConverter(locale: Localizations.localeOf(context));
 
     if (current == null) return const SizedBox.shrink();
+    debugPrint(
+      'CurrentWeatherHeader location---> ${location.cityName}',
+    );
 
     final todayHigh = dailyItems != null && dailyItems.isNotEmpty
         ? dailyItems.first.maxTemperatureCelsius
@@ -53,7 +57,19 @@ class CurrentWeatherHeader extends ConsumerWidget {
               ),
               const SizedBox(width: 12),
               InkWell(
-                onTap: () => context.go('/location-search'),
+                // onTap: () => context.push('/location-search'),
+                onTap: () async {
+                  final picked =
+                      await context.push<LocationEntity>('/location-search');
+                  if (picked != null && context.mounted) {
+                    await ref.read(weatherProvider.notifier).updateLocation(
+                          picked.latitude,
+                          picked.longitude,
+                          picked.name,
+                        );
+                    await ref.read(weatherProvider.notifier).refresh();
+                  }
+                },
                 borderRadius: BorderRadius.circular(12),
                 child: Container(
                   padding: const EdgeInsets.all(8.0),

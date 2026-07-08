@@ -11,6 +11,7 @@ import 'app_router.dart';
 import 'core/cache/cache_module.dart';
 import 'core/color/app_color_palette.dart';
 import 'core/flavor/flavor_config.dart';
+import 'core/localization/generated/app_localizations.dart';
 import 'core/network/network_client.dart';
 import 'core/network/network_config.dart';
 import 'core/settings/app_settings.dart' as core_settings;
@@ -62,7 +63,7 @@ class _LajvardAppState extends ConsumerState<LajvardApp> {
     final locale = FlavorConfig.instance.defaultLocale;
     final isRtl = locale.languageCode == 'fa';
 
-    if (settingsAsync.value case core_settings.AppSettings settings) {
+    if (settingsAsync.value case final core_settings.AppSettings settings) {
       final mappedMode = switch (settings.themeMode) {
         core_settings.AppThemeMode.light => ThemeMode.light,
         core_settings.AppThemeMode.dark => ThemeMode.dark,
@@ -86,12 +87,9 @@ class _LajvardAppState extends ConsumerState<LajvardApp> {
       darkTheme: _appTheme.dark,
       themeMode: mode,
       locale: locale,
-      supportedLocales: const [Locale('en'), Locale('fa')],
-      localizationsDelegates: const [
-        GlobalMaterialLocalizations.delegate,
-        GlobalWidgetsLocalizations.delegate,
-        GlobalCupertinoLocalizations.delegate,
-      ],
+      // supportedLocales: const [Locale('en'), Locale('fa')],
+      supportedLocales: AppLocalizations.supportedLocales,
+      localizationsDelegates: AppLocalizations.localizationsDelegates,
       builder: (context, child) {
         return Directionality(
           textDirection: isRtl ? TextDirection.rtl : TextDirection.ltr,
